@@ -133,6 +133,8 @@ x.sharpEdge      = 0.55;            % boundary sharpness separating EX from CWS
 x.minYellow      = 2.0;             % Lab b* excess over background (EX are yellow)
 x.cwsMinDD       = 0.08;            % CWS equivalent diameter range (DD)
 x.cwsMaxDD       = 0.60;
+x.cwsMaxEcc      = 0.88;            % CWS are roundish, sheen is streaky
+x.cwsMinSolidity = 0.60;            % ... and compact, not ragged
 x.dmeRadiusDD    = 1.0;             % IDRiD DME grade 2: exudate within 1 DD of fovea
 x.centreRadiusDD = 1 / 3;           % ~500 um: centre-involving surrogate
 x.odExclusion    = 1.80;            % disc radii masked out (peripapillary atrophy)
@@ -170,6 +172,9 @@ r.irmaQuadrants  = 1;
 r.nvProb         = 0.50;
 r.irmaProb       = 0.50;
 r.lesionProb     = 0.50;
+r.evidenceFloor  = 0.30;            % detector scores below this count as absent
+r.smoothing      = 0.10;            % shrinkage of the rule distribution to the prior
+r.gradePrior     = [0.62 0.12 0.16 0.05 0.05];  % typical screening case-mix, grades 0-4
 cfg.rules = r;
 
 % --------------------------------------------------------------- grading
@@ -184,6 +189,15 @@ g.cnnInputSize      = 448;
 g.cnnBackbone       = 'resnet50';
 g.useCNN            = true;
 g.useLesionModel    = true;
+g.qaSampleRate      = 0.05;         % share of auto-cleared eyes sent for audit
+% follow-up intervals shown on the report; set them to the local programme
+% protocol (the defaults follow the spirit of the ICO Guidelines for Diabetic
+% Eye Care for low-resource settings - verify before deployment)
+g.followUp = struct('ROUTINE', 'Re-screen in 12 months', ...
+    'REFER', 'Ophthalmologist within 4 weeks', ...
+    'URGENT', 'Ophthalmologist within 1 week', ...
+    'HUMAN_REVIEW', 'Specialist review of the images within 48 hours', ...
+    'RECAPTURE', 'Retake the photograph now');
 cfg.grading = g;
 
 % --------------------------------------------------------- explainability

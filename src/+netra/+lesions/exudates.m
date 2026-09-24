@@ -55,7 +55,7 @@ gmag = hypot(gx, gy);
 
 L = bwlabel(C, 8);
 st = regionprops(L, 'Area', 'Centroid', 'Eccentricity', 'MinorAxisLength', ...
-    'MajorAxisLength', 'PixelIdxList');
+    'MajorAxisLength', 'Solidity', 'PixelIdxList');
 per = bwperim(C);
 ex = repmat(emptyEntry(), 0, 1);
 cws = repmat(emptyEntry(), 0, 1);
@@ -93,7 +93,8 @@ for k = 1:numel(st)
         continue                                   % nerve-fibre sheen / vessel reflex
     end
     isCWS = e.eqDiamDD >= x.cwsMinDD && e.eqDiamDD <= x.cwsMaxDD && ...
-        e.sharpness < x.sharpEdge && e.yellowness < 2 * x.minYellow && e.ecc < 0.95;
+        e.sharpness < x.sharpEdge && e.yellowness < 2 * x.minYellow && ...
+        e.ecc < x.cwsMaxEcc && st(k).Solidity >= x.cwsMinSolidity;
     if isCWS
         e.type = 'CWS';
         e.prob = sg(e.contrast, T, 0.25 * T) * sg(x.sharpEdge - e.sharpness, 0, 0.08);
