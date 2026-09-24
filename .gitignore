@@ -1,0 +1,18 @@
+# generated outputs
+results/*
+!results/.gitkeep
+# trained weights are large; see models/README.md
+models/*.mat
+# MATLAB / Simulink build artefacts
+*.asv
+*.autosave
+slprj/
+*.slxc
+*.mexa64
+*.mexw64
+*.mexmaci64
+codegen/
+# OS / editors
+.DS_Store
+Thumbs.db
+*.swp

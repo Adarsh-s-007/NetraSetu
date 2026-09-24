@@ -1,0 +1,19 @@
+key	en	hi
+triage.ROUTINE	No referable diabetic retinopathy found. Re-screen in 12 months and keep blood sugar under control.	रेफ़र करने योग्य डायबिटिक रेटिनोपैथी नहीं मिली। 12 महीने बाद फिर से जाँच कराएँ और शुगर नियंत्रण में रखें।
+triage.REFER	Referable diabetic retinopathy suspected. Please see an eye specialist within 4 weeks.	रेफ़र करने योग्य डायबिटिक रेटिनोपैथी की आशंका है। कृपया 4 सप्ताह के भीतर नेत्र विशेषज्ञ को दिखाएँ।
+triage.URGENT	Signs of advanced (proliferative) diabetic retinopathy. See an eye specialist within 1 week.	उन्नत (प्रोलिफ़ेरेटिव) डायबिटिक रेटिनोपैथी के लक्षण। 1 सप्ताह के भीतर नेत्र विशेषज्ञ को दिखाएँ।
+triage.HUMAN_REVIEW	Your photograph is being checked by an eye specialist. You will be contacted within 48 hours.	आपकी फ़ोटो की जाँच नेत्र विशेषज्ञ कर रहे हैं। 48 घंटे के भीतर आपसे संपर्क किया जाएगा।
+triage.RECAPTURE	The photograph was not clear enough. A new photograph is needed.	फ़ोटो पर्याप्त साफ़ नहीं थी। नई फ़ोटो लेनी होगी।
+dme	Changes close to the centre of vision (macula). See an eye specialist within 2 weeks.	दृष्टि के केंद्र (मैक्युला) के पास बदलाव। 2 सप्ताह के भीतर नेत्र विशेषज्ञ को दिखाएँ।
+fb.blur	Out of focus: clean the lens, ask the patient to keep still, refocus on the vessels at the disc.	फ़ोकस नहीं है: लेंस साफ़ करें, मरीज़ को स्थिर रहने को कहें, डिस्क की नसों पर दोबारा फ़ोकस करें।
+fb.dark	Too dark: dim the room lights, let the pupil enlarge, or increase the flash.	फ़ोटो बहुत गहरी है: कमरे की रोशनी कम करें, पुतली फैलने दें, या फ़्लैश बढ़ाएँ।
+fb.bright	Over-exposed or glare: reduce the flash and realign the camera with the pupil centre.	बहुत ज़्यादा रोशनी या चमक: फ़्लैश कम करें और कैमरे को पुतली के केंद्र पर सीधा करें।
+fb.field	Retina not fully in view: centre the pupil and ask the patient to look at the fixation light.	रेटिना पूरा दिखाई नहीं दे रहा: पुतली को बीच में रखें और मरीज़ को फ़िक्सेशन लाइट देखने को कहें।
+fb.contrast	Low contrast (dirty lens or possible cataract): clean the lens and retake; if it persists, refer for a dilated eye examination.	कम कंट्रास्ट (गंदा लेंस या मोतियाबिंद हो सकता है): लेंस साफ़ करके फिर से फ़ोटो लें; बार-बार ऐसा हो तो पुतली फैलाकर जाँच के लिए रेफ़र करें।
+fb.artifact	Shadow or reflection at the edge: ask the patient to open the eye wide and hold the camera steady.	किनारे पर छाया या चमक: मरीज़ को आँख पूरी खोलने को कहें और कैमरा स्थिर रखें।
+fb.anatomy	Optic disc or macula not found: capture a macula-centred field (disc to one side).	ऑप्टिक डिस्क या मैक्युला नहीं मिला: मैक्युला को बीच में रखकर फ़ोटो लें (डिस्क एक ओर)।
+grade.0	No apparent retinopathy	कोई रेटिनोपैथी नहीं
+grade.1	Mild NPDR	हल्की NPDR
+grade.2	Moderate NPDR	मध्यम NPDR
+grade.3	Severe NPDR	गंभीर NPDR
+grade.4	Proliferative DR	प्रोलिफ़ेरेटिव DR
