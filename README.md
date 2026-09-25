@@ -11,26 +11,31 @@ MATLAB · Image Processing · Computer Vision · Deep Learning · Statistics & M
 <p align="center"><img src="docs/img/pipeline.svg" alt="NetraSetu architecture: capture, quality gate, standardisation, anatomy, lesions, three graders, ordinal fusion, conformal calibration, triage, explained report, reader console, district simulation" width="100%"></p>
 
 A technician at a primary health centre photographs both eyes of a person with
-diabetes. Within seconds NetraSetu says whether the photograph is good enough
+diabetes. In under a minute on a laptop CPU, NetraSetu says whether the photograph is good enough
 (and, in Hindi or English, what to fix if it is not), finds the optic disc,
 fovea and vessels, **measures** every lesion the international grading scale
 is written in — microaneurysms to a fraction of a pixel, haemorrhages by type
 and quadrant, exudates by distance from the fovea, new vessels — grades the
 eye three independent ways, fuses the grades with calibrated uncertainty, and
-produces a one-page report a grader can confirm in under 30 seconds. A
+produces a one-page report designed to be confirmed by a grader in under 30
+seconds. A
 Simulink model of the district programme then answers the question the
 district health officer actually has: *how many cameras, links, graders and
 ophthalmologist hours does it take to screen 100,000 people a year, and what
 does it cost?*
 
-> **Status, honestly.** Everything below the line "measured here" was run in
+> **Status, honestly.** Everything in the section *Measured here* was run in
 > this repository. The clinical accuracy figures (sensitivity, specificity,
 > AUC on APTOS 2019, IDRiD and Messidor-2) are produced when you run
 > `experiments/run_all.m` with the datasets, which are licensed and cannot be
 > redistributed; the analysis plan is fixed in
 > [`docs/VALIDATION.md`](docs/VALIDATION.md) and the results are assembled into
 > a self-contained validation dossier. No number in this README is a clinical
-> accuracy claim.
+> accuracy claim. The MATLAB-only parts — CNN training and Grad-CAM, the lesion
+> ensemble, the Reader Console and building the `.slx` — follow the documented
+> MATLAB APIs but could not be executed here (no MATLAB in this environment);
+> run `tests/run_tests`, `demo_netrasetu` and `simulink/build_netrasetu_model`
+> in MATLAB first.
 
 ---
 
@@ -41,7 +46,7 @@ does it cost?*
 | **1 · Quality gate** | Five interpretable sub-scores — field, focus, illumination, contrast, artefacts — and a minimum-sub-score rule. *GRADABLE*, *ENHANCE* (enhanced, re-assessed, and sent to a person if still borderline) or *RECAPTURE* with the reason, in the technician's language. |
 | **2 · Standardise** | Aperture circle recovered even when a camera clips it; 1024-px canvas where 1 disc diameter ≈ 1500 µm; illumination and colour normalised (every lesion threshold is a contrast in *% darker than the local retina*); adaptive CLAHE; denoising only when noise is measured to be high. |
 | **3 · Anatomy** | Vessels by three complementary detectors (Frangi, multiscale line detector, linear top-hat) fused by a model learned on DRIVE; optic disc from four independent cues; fovea; ETDRS grid, quadrants and macular zones. |
-| **4 · Lesions, measured** | Microaneurysms fitted with a sub-pixel Gaussian (error at the Cramér–Rao bound); haemorrhages as dot / blot / flame / pre-retinal, counted per quadrant; hard exudates vs cotton-wool spots; macular-oedema zones; neovascularisation on and off the disc; venous beading; IRMA-like anomalies. |
+| **4 · Lesions, measured** | Microaneurysms fitted with a sub-pixel Gaussian (on simulated spots the error sits on the Cramér–Rao bound); haemorrhages as dot / blot / flame / pre-retinal, counted per quadrant; hard exudates vs cotton-wool spots; macular-oedema zones; neovascularisation on and off the disc; venous beading; IRMA-like anomalies. |
 | **5 · Three graders** | An ICDR **rule engine** (the 4-2-1 rule, re-fitted for one 45° field, run as a Monte-Carlo over uncertain lesions) · a **lesion ensemble** on 32 clinically named features with Shapley explanations · a **CNN** (ResNet-50, ordinal-cost loss, test-time augmentation, temperature-scaled). |
 | **6 · Fusion & uncertainty** | Proportional-odds stacking of the branches; split-conformal grade sets with 90 % coverage; a referral threshold whose sensitivity is *guaranteed* by the lower bound of its Wilson interval, not just its point estimate. |
 | **7 · Triage** | RECAPTURE › URGENT › REFER › HUMAN REVIEW › ROUTINE. An eye is auto-cleared only when nothing is uncertain: a grade set straddling the referral boundary, disagreeing branches, borderline quality, anatomy not found, or a CNN looking somewhere other than the lesions all go to a person. |
@@ -91,8 +96,8 @@ implementations. They verify the engineering, not the clinical accuracy.
 | Test suite (`tests/run_tests`) | **50 / 50 passing** in GNU Octave 8.4 (and on every push, via GitHub Actions) — statistics, dataset readers, grading, explanation, simulation, end-to-end pipeline |
 | Statistics vs independent implementations | ROC AUC, average precision, Brier score, quadratic weighted kappa = scikit-learn to 1e-12; Wilson interval and exact McNemar = statsmodels to 1e-12; proportional-odds model = statsmodels `OrderedModel` (max. likelihood) to 2e-4; DeLong SE and paired p = midrank reference (Sun & Xu) to 1e-7 |
 | Microaneurysm localisation | RMS centre error **0.15 px at SNR 8 and 0.04 px at SNR 30 — on the Cramér–Rao bound** (0.14 and 0.04 px); the brightest pixel is 0.71 / 0.44 px off and a half-maximum centroid 0.18 / 0.10 px. Below SNR ≈ 6 a fit can lock onto noise, which is why the detector also demands contrast against the local texture |
-| Simulink model vs MATLAB reference | block code executed for a simulated year (8,736 hourly steps): **bit-identical** on all 14 logged signals at every step and all 48 KPIs, edge and cloud grading |
-| End-to-end on synthetic eyes | healthy eye not referred, severe NPDR referred, defocused photograph sent for recapture; disc within 0.25 DD and fovea within 0.5 DD on healthy and diseased eyes |
+| Simulink model vs MATLAB reference | the model's block code, run by the block emulator for a simulated year (8,736 hourly steps): **bit-identical** on all 14 logged signals at every step and all 48 KPIs, edge and cloud grading. Simulink itself was not available here: building and running the `.slx` is the first thing to do in MATLAB (`simulink/build_netrasetu_model`, which repeats this cross-check) |
+| End-to-end on synthetic eyes | healthy eye not referred, severe NPDR referred, defocused photograph sent for recapture; disc within 0.25 DD and fovea within 0.5 DD on healthy and diseased eyes; the grade-4 phantom is referred but not flagged urgent (see above) |
 
 <p align="center"><img src="docs/img/subpixel.png" alt="Microaneurysm localisation error versus signal-to-noise ratio" width="70%"></p>
 
