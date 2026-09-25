@@ -209,6 +209,7 @@ cfg.xai.concordanceMin  = 0.35;
 cfg.report.programme  = 'District Diabetic Retinopathy Screening Programme';
 cfg.report.site       = 'Primary Health Centre';
 cfg.report.languages  = {'en', 'hi'};
+cfg.report.hindiInFigure = false;   % figure text is not shaped for Devanagari
 cfg.report.disclaimer = ['AI-assisted screening result. Not a diagnosis. ', ...
     'A qualified grader or ophthalmologist confirms every referral.'];
 

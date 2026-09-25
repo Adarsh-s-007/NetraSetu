@@ -76,7 +76,7 @@ if on('ma')
     for i = 1:numel(L.ma.list)
         m = L.ma.list(i);
         if m.prob < o.MinProb || ~strcmp(m.class, 'MA'), continue; end
-        img = ring(img, [m.x m.y], max(4 * lw, 2.5 * m.sigmaPx + 3), P.ma, 0.95, lw, false);
+        img = ring(img, [m.x m.y], max(5 * lw, 3 * m.sigmaPx + 4), P.ma, 1.0, 1.8 * lw, false);
     end
 end
 if on('vb')

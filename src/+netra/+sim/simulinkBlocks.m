@@ -1,0 +1,153 @@
+function M = simulinkBlocks()
+%SIMULINKBLOCKS The district tele-screening model, described once as data.
+%
+%   M = netra.sim.simulinkBlocks() is the single description of the
+%   Simulink model. Three consumers read it:
+%     netra.sim.buildSimulink   draws the .slx model from it
+%     netra.sim.emulateBlocks   executes the very same block code without
+%                               Simulink, so the model's logic is tested in
+%                               CI (Octave) against netra.sim.runReference
+%     netra.sim.runSimulink     knows which signals the model logs
+%
+%   M.sources  model inputs, read from the workspace struct 'nsim' built by
+%              netra.sim.simulinkInputs: 'series' become From Workspace
+%              blocks (one value per step), 'constant' become Constant
+%              blocks (stage parameters p, initial queue states).
+%   M.blocks   MATLAB Function blocks in execution order. Every input port
+%              is named after the signal or source it reads, so the model
+%              is wired by name. Queues are persistent variables inside the
+%              block that owns them (sites x hours since capture), which
+%              keeps the diagram free of algebraic or dimension-propagation
+%              loops. All code calls the netra.sim.stage* functions that the
+%              MATLAB reference simulator calls.
+%   M.logs     signals saved to the workspace: 'all' every step, 'last' the
+%              final value only.
+%   M.scopes   live Scope views.
+
+src = @(name, kind, value) struct('name', name, 'kind', kind, 'value', value);
+sources = [ ...
+    src('arrivals', 'series', 'nsim.in.arrivals'), ...
+    src('capCapture', 'series', 'nsim.in.capCapture'), ...
+    src('closing', 'series', 'nsim.in.closing'), ...
+    src('upCap', 'series', 'nsim.in.upCap'), ...
+    src('graderCap', 'series', 'nsim.in.graderCap'), ...
+    src('ophthCap', 'series', 'nsim.in.ophthCap'), ...
+    src('p', 'constant', 'nsim.p'), ...
+    src('wait0', 'constant', 'nsim.x0.wait'), ...
+    src('site0', 'constant', 'nsim.x0.qUp'), ...
+    src('hub0', 'constant', 'nsim.x0.q1'), ...
+    src('H0', 'constant', 'nsim.x0.H')];
+
+blk = @(name, label, color, in, out, code) struct('name', name, 'label', label, ...
+    'color', color, 'in', {in}, 'out', {out}, 'code', {code});
+blocks = [ ...
+  blk('Capture', '1  Capture at PHCs and camps', 'lightBlue', ...
+    {'arrivals', 'capCapture', 'closing', 'wait0'}, ...
+    {'captured', 'nArrived', 'nCaptured', 'nBalked', 'waiting'}, { ...
+    'persistent q'
+    'if isempty(q)'
+    '    q = wait0(:);'
+    'end'
+    '[q, captured, balked] = netra.sim.stepCapture(q, arrivals(:), capCapture(:), closing(:));'
+    'nArrived = sum(arrivals(:));'
+    'nCaptured = sum(captured);'
+    'nBalked = sum(balked);'
+    'waiting = sum(q);'}), ...
+  blk('Route', '2  Edge AI clears normal eyes', 'lightBlue', ...
+    {'captured', 'p'}, {'toUpload', 'autoNow'}, { ...
+    '[toUpload, autoNow] = netra.sim.stageRoute(captured(:), p);'}), ...
+  blk('Uplink', '3  Store-and-forward uplink', 'orange', ...
+    {'toUpload', 'upCap', 'site0'}, {'arrived', 'sent', 'upBacklog'}, { ...
+    'persistent q'
+    'if isempty(q)'
+    '    q = site0;'
+    'end'
+    '[q, arrived, sent] = netra.sim.stageUplink(q, toUpload(:), upCap(:));'
+    'upBacklog = sum(q(:));'}), ...
+  blk('Grade', '4  Central AI grading and triage', 'yellow', ...
+    {'arrived', 'p', 'hub0'}, {'inU', 'inR', 'inQ', 'autoByAge', 'graded', 'aiBacklog'}, { ...
+    'persistent q'
+    'if isempty(q)'
+    '    q = hub0;'
+    'end'
+    '[q, inU, inR, inQ, autoByAge, graded] = netra.sim.stageGrade(q, arrived, p);'
+    'aiBacklog = sum(q);'}), ...
+  blk('Review', '5  Grader review: urgent > routine > audit', 'green', ...
+    {'inU', 'inR', 'inQ', 'graderCap', 'hub0'}, ...
+    {'doneU', 'doneR', 'casesG', 'reviewBacklog', 'auditBacklog'}, { ...
+    'persistent qU qR qQ'
+    'if isempty(qU)'
+    '    qU = hub0;'
+    'end'
+    'if isempty(qR)'
+    '    qR = hub0;'
+    'end'
+    'if isempty(qQ)'
+    '    qQ = hub0;'
+    'end'
+    '[qU, qR, qQ, doneU, doneR, ~, casesG] = netra.sim.stageReview(qU, qR, qQ, inU, inR, inQ, graderCap);'
+    'reviewBacklog = sum(qU) + sum(qR);'
+    'auditBacklog = sum(qQ);'}), ...
+  blk('Ophthalmologist', '6  Ophthalmologist adjudication', 'green', ...
+    {'doneU', 'doneR', 'ophthCap', 'p', 'hub0'}, ...
+    {'doneOU', 'doneOR', 'casesO', 'ophthBacklog'}, { ...
+    'persistent qU qR'
+    'if isempty(qU)'
+    '    qU = hub0;'
+    'end'
+    'if isempty(qR)'
+    '    qR = hub0;'
+    'end'
+    '[qU, qR, doneOU, doneOR, casesO] = netra.sim.stageOphth(qU, qR, doneU, doneR, ophthCap, p);'
+    'ophthBacklog = sum(qU) + sum(qR);'}), ...
+  blk('Results', '7  Results by turnaround and path', 'cyan', ...
+    {'autoNow', 'autoByAge', 'doneU', 'doneR', 'doneOU', 'doneOR', 'p', 'H0'}, {'H'}, { ...
+    'persistent h'
+    'if isempty(h)'
+    '    h = H0;'
+    'end'
+    'h = netra.sim.stageTally(h, autoNow, autoByAge, doneU, doneR, doneOU, doneOR, p);'
+    'H = h;'})];
+
+lg = @(signal, mode) struct('signal', signal, 'mode', mode);
+logs = [lg('nArrived', 'all'), lg('nCaptured', 'all'), lg('nBalked', 'all'), ...
+    lg('waiting', 'all'), lg('sent', 'all'), lg('upBacklog', 'all'), lg('graded', 'all'), ...
+    lg('aiBacklog', 'all'), lg('casesG', 'all'), lg('reviewBacklog', 'all'), ...
+    lg('auditBacklog', 'all'), lg('casesO', 'all'), lg('ophthBacklog', 'all'), lg('H', 'last')];
+
+sc = @(name, signals) struct('name', name, 'signals', {signals});
+scopes = [sc('Screened per hour', {'nCaptured', 'nBalked'}), ...
+    sc('Uplink backlog', {'upBacklog'}), ...
+    sc('Reading-hub backlog', {'reviewBacklog', 'ophthBacklog'})];
+
+M = struct('sources', sources, 'blocks', blocks, 'logs', logs, 'scopes', scopes, ...
+    'title', 'NetraSetu district tele-screening model', ...
+    'note', ['One step = nsim.dt hours. Queues are age-structured (sites x hours since capture) ' ...
+    'and live inside the stage that owns them. Built by netra.sim.buildSimulink from ' ...
+    'netra.sim.simulinkBlocks; run with netra.sim.runSimulink(P, D).']);
+validate(M);
+end
+
+% ======================================================================
+function validate(M)
+% every input is a source or an earlier block's output; names are unique
+known = {M.sources.name};
+for b = 1:numel(M.blocks)
+    B = M.blocks(b);
+    missing = setdiff(B.in, known);
+    if ~isempty(missing)
+        error('netra:sim:blocks', 'Block %s reads %s before it is produced.', B.name, ...
+            strjoin(missing, ', '));
+    end
+    clash = intersect(B.out, known);
+    if ~isempty(clash)
+        error('netra:sim:blocks', 'Signal %s is produced twice.', strjoin(clash, ', '));
+    end
+    known = [known, B.out]; %#ok<AGROW>
+end
+used = [{M.logs.signal}, M.scopes.signals];
+missing = setdiff(used, known);
+if ~isempty(missing)
+    error('netra:sim:blocks', 'Logged signal %s is never produced.', strjoin(missing, ', '));
+end
+end
