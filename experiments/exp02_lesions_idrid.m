@@ -25,7 +25,7 @@
 %   Data: data/IDRiD (or set dataIDRiD before running). 'MaxImages' style
 %   quick runs: set maxImages = 5 before running.
 %   Outputs: results/exp02/{lesions_idrid.csv, localisation_idrid.csv,
-%   summary.mat, example.png}.  Runs in MATLAB and in GNU Octave.
+%   summary.mat, example.jpg}.  Runs in MATLAB and in GNU Octave.
 
 root = fileparts(fileparts(mfilename('fullpath')));
 if isempty(which('netra.config'))
@@ -214,6 +214,8 @@ if ~isempty(example)
         end
     end
     ov = netra.quality.warpToOriginal(example.overlay, example.S);
-    imwrite(netra.util.montage({example.rgb, ref, ov}, 3), fullfile(outDir, 'example.png'));
+    f = min(1, 900 / size(example.rgb, 2));      % 4288-px photographs: tile at ~900 px
+    tiles = cellfun(@(t) netra.util.imscale(double(t), f), {example.rgb, ref, ov}, 'UniformOutput', false);
+    imwrite(netra.util.montage(tiles, 3), fullfile(outDir, 'example.jpg'), 'Quality', 90);
 end
 fprintf('Saved %s\n', outDir);

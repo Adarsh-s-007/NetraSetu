@@ -102,7 +102,11 @@ else
                     pd = pfmt(x.pDeLong);
                     pm = sprintf('%s / %s', pfmt(x.mcnemarSe.p), pfmt(x.mcnemarSp.p));
                 end
-                body(end + 1, :) = {esc(x.name), sprintf('%.3f (%.3f-%.3f)', x.auc, x.aucCI), pd, ...
+                auc = '&mdash;';
+                if ~isnan(x.auc)
+                    auc = sprintf('%.3f (%.3f-%.3f)', x.auc, x.aucCI);
+                end
+                body(end + 1, :) = {esc(x.name), auc, pd, ...
                     ci(x.se, x.seCI), ci(x.sp, x.spCI), pm}; %#ok<AGROW>
             end
             h{end + 1} = '<h4>Integration vs each technique alone (same eyes)</h4>';
@@ -110,7 +114,7 @@ else
                 'Specificity', 'McNemar p (Se / Sp)'}, body);
         end
         img = fullfile(o.Results, 'exp04', ['roc_' keys{k} '.png']);
-        h{end + 1} = figureHTML(img, sprintf('ROC of the deployed pipeline and the single techniques, %s', R.label));
+        h{end + 1} = figureHTML(img, sprintf('ROC of the deployed pipeline and the single techniques, %s', R.label), 'narrow');
     end
 end
 h{end + 1} = '</section>';
@@ -139,7 +143,7 @@ else
     h{end + 1} = sprintf('<p class="note">%d test images, pixels inside the FOV; thresholds chosen on the %d training images.</p>', ...
         S1.nTest, S1.nTrain);
     h{end + 1} = table_({'Detector', 'AUC', 'Se', 'Sp', 'Acc', 'Fusion minus this: mean AUC (95% CI)'}, body);
-    h{end + 1} = figureHTML(fullfile(o.Results, 'exp01', 'example.png'), ...
+    h{end + 1} = figureHTML(fullfile(o.Results, 'exp01', 'example.jpg'), ...
         'Photograph, reference, learned fusion, Frangi, line detector, top-hat');
 end
 h{end + 1} = '</section>';
@@ -167,7 +171,7 @@ else
             sprintf('%.0f%%', 100 * l.within2)}; %#ok<AGROW>
     end
     h{end + 1} = table_({'Landmark', 'Median error', 'within 1/8 DD', 'within 1/4 DD', 'within 1/2 DD'}, body);
-    h{end + 1} = figureHTML(fullfile(o.Results, 'exp02', 'example.png'), ...
+    h{end + 1} = figureHTML(fullfile(o.Results, 'exp02', 'example.jpg'), ...
         'Photograph, reference lesions, NetraSetu annotation');
 end
 h{end + 1} = '</section>';
@@ -190,7 +194,7 @@ else
         h{end + 1} = sprintf('<p class="kv">Reader console: %d cases, median <b>%.0f s</b>, %.0f %% within 30 s, %.0f %% agreement with the AI.</p>', ...
             rd.cases, rd.medianSeconds, 100 * rd.under30, 100 * rd.agreement);
     end
-    h{end + 1} = figureHTML(fullfile(o.Results, 'exp05', 'examples.png'), ...
+    h{end + 1} = figureHTML(fullfile(o.Results, 'exp05', 'examples.jpg'), ...
         'Enhanced image, reference lesions, lesion evidence map, Grad-CAM++ (when trained)');
 end
 h{end + 1} = '</section>';
@@ -286,7 +290,11 @@ s = sprintf('<div class="tile"><div class="v">%s</div><div class="l">%s</div>%s<
 end
 
 function s = ci(p, c)
-s = sprintf('%.1f%% <small>(%.1f-%.1f)</small>', 100 * p, 100 * c(1), 100 * c(2));
+if isnan(p)
+    s = '&mdash;';                       % undefined (no eyes in the denominator)
+else
+    s = sprintf('%.1f%% <small>(%.1f-%.1f)</small>', 100 * p, 100 * c(1), 100 * c(2));
+end
 end
 
 function s = pfmt(p)
@@ -305,7 +313,10 @@ end
 s = [s '</tbody></table></div>'];
 end
 
-function s = figureHTML(file, caption)
+function s = figureHTML(file, caption, cls)
+if nargin < 3
+    cls = '';
+end
 s = '';
 if ~exist(file, 'file')
     return
@@ -318,8 +329,13 @@ if netra.util.isOctave()
 else
     b64 = matlab.net.base64encode(bytes');
 end
-s = sprintf('<figure><img alt="%s" src="data:image/png;base64,%s"><figcaption>%s</figcaption></figure>', ...
-    esc(caption), b64, esc(caption));
+mime = 'image/png';
+[~, ~, ext] = fileparts(file);
+if any(strcmpi(ext, {'.jpg', '.jpeg'}))
+    mime = 'image/jpeg';
+end
+s = sprintf('<figure class="%s"><img alt="%s" src="data:%s;base64,%s"><figcaption>%s</figcaption></figure>', ...
+    cls, esc(caption), mime, b64, esc(caption));
 end
 
 function s = missing(what)
@@ -358,6 +374,7 @@ s = [':root{--ink:' hex(P.ink) ';--soft:' hex(P.inkSoft) ';--paper:' hex(P.paper
     'td{border-bottom:1px solid var(--rule);padding:6px 10px;vertical-align:top}small{color:var(--soft)}' ...
     'figure{margin:14px 0}figure img{max-width:100%;border:1px solid var(--rule);border-radius:6px;background:#fff}' ...
     'figcaption{font-size:12.5px;color:var(--soft);margin-top:4px}.missing{color:var(--soft);font-style:italic}' ...
+    'figure.narrow img{max-width:min(100%,720px)}' ...
     '.verify{font-size:11px;border:1px solid var(--warn);color:var(--warn);border-radius:8px;padding:0 6px}' ...
     '.lim li{margin:6px 0;max-width:860px}code{background:#fff;border:1px solid var(--rule);border-radius:4px;padding:0 4px;font-size:13px}' ...
     'footer{text-align:center;color:var(--soft);font-size:12px;padding:24px}' ...

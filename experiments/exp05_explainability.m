@@ -21,7 +21,7 @@
 %   netra.ui.ReaderConsole), their median review time, share under 30 s
 %   and agreement with the AI are summarised as well.
 %
-%   Outputs: results/exp05/{explainability.csv, summary.mat, examples.png}.
+%   Outputs: results/exp05/{explainability.csv, summary.mat, examples.jpg}.
 
 root = fileparts(fileparts(mfilename('fullpath')));
 if isempty(which('netra.config'))
@@ -161,6 +161,7 @@ end
 fclose(fid);
 save(fullfile(outDir, 'summary.mat'), 'summary', '-v7');
 if ~isempty(examples)
-    imwrite(netra.util.montage(examples, 3 + (nM > 1)), fullfile(outDir, 'examples.png'));
+    examples = cellfun(@(t) netra.util.imscale(t, 360 / size(t, 1)), examples, 'UniformOutput', false);
+    imwrite(netra.util.montage(examples, 3 + (nM > 1)), fullfile(outDir, 'examples.jpg'), 'Quality', 90);
 end
 fprintf('Saved %s\n', outDir);

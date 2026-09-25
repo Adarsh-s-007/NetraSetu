@@ -23,7 +23,7 @@
 %      methods (netra.eval.benchmarks) and an example figure.
 %
 %   Data: data/DRIVE (or set dataDRIVE = '<folder>' before running).
-%   Outputs: results/exp01/{vessels_drive.csv, summary.mat, example.png}.
+%   Outputs: results/exp01/{vessels_drive.csv, summary.mat, example.jpg}.
 %   Runs in MATLAB and in GNU Octave.
 
 root = fileparts(fileparts(mfilename('fullpath')));
@@ -237,5 +237,5 @@ end
 fclose(fid);
 save(fullfile(outDir, 'summary.mat'), 'summary', '-v7');
 tiles = [{example.rgb, example.gt}, example.maps([5 1 2 3])];
-imwrite(netra.util.montage(tiles, 3), fullfile(outDir, 'example.png'));
+imwrite(netra.util.montage(tiles, 3), fullfile(outDir, 'example.jpg'), 'Quality', 90);
 fprintf('Saved %s\n', outDir);
