@@ -59,7 +59,10 @@ for it = 1:o.MaxIter
     Jw = bsxfun(@times, J, w);
     A = J' * Jw;
     g = Jw' * r;
-    step = -(A + lambda * diag(diag(A) + 1e-9)) \ g;
+    % damped normal equations; pinv because a vanishing amplitude makes the
+    % system singular (the fit then simply fails to improve and stops)
+    Dg = max(diag(A), 1e-9 * max(diag(A)) + 1e-12);
+    step = -pinv(A + lambda * diag(Dg)) * g;
     cand = project(th + step, x0init, o.MaxShift, o.SigmaMax);
     [rc, Jc] = residual(cand, x, y, d, xc, yc);
     cc = sum(w .* rc .^ 2);

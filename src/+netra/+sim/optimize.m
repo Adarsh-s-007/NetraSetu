@@ -24,6 +24,10 @@ function R = optimize(P, varargin)
 %   three cheapest. 'auto'
 %   picks bayesopt when available.
 %
+%   'Days' shorter than P.days is faster but annualises part of a year:
+%   with seasonal demand (P.season) that is biased, so exp06 optimises on
+%   the full year.
+%
 %   R fields: best (decision + kpi), evaluations (struct array), pareto
 %   (non-dominated plans by cost and patients reaching treatment),
 %   scenario, method.

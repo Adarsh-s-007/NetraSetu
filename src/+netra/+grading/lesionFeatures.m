@@ -6,7 +6,12 @@ function [x, names] = lesionFeatures(L, A, Q)
 %   and image quality (netra.quality.assess) into 32 numbers with names a
 %   clinician recognises. They feed the lesion ensemble and are what its
 %   Shapley explanations refer to.
+%
+%   [~, names] = netra.grading.lesionFeatures() returns the names alone.
 
+if nargin == 0
+    [L, A] = emptyEye();
+end
 s = L.summary;
 maP = [];
 if ~isempty(L.ma.list)
@@ -63,4 +68,18 @@ F = {
     'foveaConfidence',    A.fovea.confidence};
 names = F(:, 1)';
 x = cell2mat(F(:, 2)');
+end
+
+% ======================================================================
+function [L, A] = emptyEye()
+% an eye without findings: gives the names (and the all-normal feature values)
+s = struct('maCount', 0, 'maHighCount', 0, 'heCounts', struct('dot', 0, 'blot', 0, ...
+    'flame', 0, 'preretinal', 0), 'heTotal', 0, 'hePerQuadrant', zeros(1, 4), ...
+    'preretinalCount', 0, 'exCount', 0, 'exAreaDD2', 0, 'exMinDistFoveaDD', Inf, 'dme', 0, ...
+    'centreInvolved', false, 'cwsCount', 0, 'vbQuadrants', [], 'vbMaxIndex', 0, ...
+    'irmaQuadrants', [], 'nvdProb', 0, 'nveProb', 0, 'nvdScore', 0, 'nveScore', 0);
+L = struct('summary', s, 'ma', struct('list', []), 'he', struct('list', []), ...
+    'vb', struct('irma', []));
+A = struct('vessels', struct('fraction', 0), 'od', struct('confidence', 0), ...
+    'fovea', struct('confidence', 0));
 end

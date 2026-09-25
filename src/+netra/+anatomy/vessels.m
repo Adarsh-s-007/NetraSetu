@@ -26,6 +26,7 @@ function V = vessels(gN, mask, cfg, varargin)
 %     prob, mask            fused response in [0,1] and binary mask
 %     probWork, maskWork    the same, resampled to the input canvas
 %     response              struct of the individual normalised detectors
+%     contrast              inverted contrast 1 - gN (the fusion model's 4th input)
 %     theta                 vessel direction (radians), skeleton, width (px)
 %     thick                 mask of major vessels (calibre >= thickWidthDD)
 %     scale                 vessel-resolution px per canvas px
@@ -143,6 +144,7 @@ V = struct();
 V.prob = P;
 V.mask = B;
 V.response = resp;
+V.contrast = c;                          % inverted green contrast (fusion input)
 V.theta = theta;
 V.skeleton = skel;
 V.width = width;

@@ -31,9 +31,11 @@ month = min(12, floor(mod(day, 365) / 30.42) + 1);
 Np = P.phc.count;
 N = Np + maxVans;
 
+% public holidays: P.phc.holidays per year, pro rata for shorter horizons
 holidays = false(max(day) + 1, 1);
 cand = find(mod((0:max(day))', 7) < 6);
-holidays(cand(randperm(numel(cand), min(P.phc.holidays, numel(cand))))) = true;
+nHol = min(round(P.phc.holidays * (max(day) + 1) / 364), numel(cand));
+holidays(cand(randperm(numel(cand), nHol))) = true;
 isHoliday = holidays(day + 1);
 
 openPHC = hour >= P.phc.hours(1) & hour < P.phc.hours(2) & dow <= 6 & ~isHoliday;

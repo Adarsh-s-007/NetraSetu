@@ -100,10 +100,14 @@ T.pReferable = pRef;
 T.pUrgent = Fz.pUrgent;
 T.dme = R.dme;
 T.reasons = reasons;
-T.followUp = g.followUp.(triage);
-T.message = struct('en', netra.util.i18n(['triage.' triage], 'en'), ...
-                   'hi', netra.util.i18n(['triage.' triage], 'hi'));
-if R.dme >= 2 && any(strcmp(triage, {'REFER', 'URGENT'}))
+key = triage;
+if R.dme >= 2 && strcmp(triage, 'REFER')
+    key = 'REFER_DME';                   % macular oedema risk: sooner, and said once
+end
+T.followUp = g.followUp.(key);
+T.message = struct('en', netra.util.i18n(['triage.' key], 'en'), ...
+                   'hi', netra.util.i18n(['triage.' key], 'hi'));
+if R.dme >= 2 && strcmp(triage, 'URGENT')
     T.message.en = [T.message.en ' ' netra.util.i18n('dme', 'en')];
     T.message.hi = [T.message.hi ' ' netra.util.i18n('dme', 'hi')];
 end

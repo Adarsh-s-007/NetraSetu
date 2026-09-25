@@ -23,7 +23,8 @@ function NV = neovascularization(E, A, cfg)
 %
 %   NV fields: nvdScore, nveScore, nvdProb, nveProb, candidates (struct:
 %   type, x, y, bbox [x y w h] in canvas px, score, prob), scoreMap,
-%   fineMask and features (canvas resolution).
+%   fineMask, features (canvas resolution), reference (sampling mask of
+%   the z-scores) and discZone.
 
 nvc = cfg.nv;
 V = A.vessels;
@@ -168,6 +169,8 @@ NV.candidates = cand;
 NV.scoreMap = S;
 NV.fineMask = B;
 NV.features = feat;
+NV.reference = inside & sampleGrid;       % where the statistics are sampled
+NV.discZone = zoneDisc;
 NV.window = w;
 end
 

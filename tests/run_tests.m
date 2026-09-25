@@ -19,7 +19,9 @@ addpath(root);
 netrasetu_setup('quiet');
 
 files = dir(fullfile(here, 'test_*.m'));
-files = files(~cellfun(@isempty, strfind({files.name}, filter)));
+if ~isempty(filter)
+    files = files(~cellfun(@isempty, strfind({files.name}, filter)));
+end
 
 summary = struct('file', {}, 'name', {}, 'passed', {}, 'message', {}, 'seconds', {});
 fprintf('\nNetraSetu test suite (%d files)\n', numel(files));

@@ -46,6 +46,14 @@ end
 if ~isempty(M.calibration) && isfield(M.calibration, 'operatingPoint')
     cfg.grading.referralThreshold = M.calibration.operatingPoint.threshold;
 end
+if ~isempty(M.calibration) && isfield(M.calibration, 'rules')
+    % rule thresholds re-fitted on local training data (exp03), e.g. the
+    % single-field adaptation of the 4-2-1 haemorrhage count
+    rf = fieldnames(M.calibration.rules);
+    for k = 1:numel(rf)
+        cfg.rules.(rf{k}) = M.calibration.rules.(rf{k});
+    end
+end
 
 R = struct();
 R.meta = struct('id', o.ID, 'eye', o.Eye, 'site', o.Site, 'file', '', ...

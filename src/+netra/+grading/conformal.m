@@ -22,9 +22,14 @@ switch lower(action)
         [P, y, alpha] = deal(varargin{:});
         n = numel(y);
         s = 1 - P(sub2ind(size(P), (1:n)', y(:) + 1));
-        k = min(n, ceil((n + 1) * (1 - alpha)));
+        k = ceil((n + 1) * (1 - alpha));
         ss = sort(s);
-        out = struct('qhat', ss(k), 'alpha', alpha, 'n', n);
+        if k > n
+            qhat = Inf;          % too few calibration eyes: only the full set is guaranteed
+        else
+            qhat = ss(k);
+        end
+        out = struct('qhat', qhat, 'alpha', alpha, 'n', n);
     case 'predict'
         [P, C] = deal(varargin{:});
         sets = P >= 1 - C.qhat;

@@ -12,14 +12,11 @@ fp = nnz(~truth & pred);
 m = struct('tp', tp, 'fp', fp, 'tn', tn, 'fn', fn);
 m.nPos = tp + fn;
 m.nNeg = tn + fp;
-m.se = tp / max(tp + fn, 1);
-m.seCI = netra.eval.wilson(tp, tp + fn);
-m.sp = tn / max(tn + fp, 1);
-m.spCI = netra.eval.wilson(tn, tn + fp);
-m.ppv = tp / max(tp + fp, 1);
-m.ppvCI = netra.eval.wilson(tp, tp + fp);
-m.npv = tn / max(tn + fn, 1);
-m.npvCI = netra.eval.wilson(tn, tn + fn);
+% a proportion with an empty denominator is undefined, not zero
+[m.se, m.seCI] = prop(tp, tp + fn);
+[m.sp, m.spCI] = prop(tn, tn + fp);
+[m.ppv, m.ppvCI] = prop(tp, tp + fp);
+[m.npv, m.npvCI] = prop(tn, tn + fn);
 m.acc = (tp + tn) / max(numel(truth), 1);
 m.f1 = 2 * tp / max(2 * tp + fp + fn, 1);
 den = sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn));
@@ -27,4 +24,14 @@ m.mcc = (tp * tn - fp * fn) / max(den, eps);
 m.youden = m.se + m.sp - 1;
 m.lrPos = m.se / max(1 - m.sp, eps);
 m.lrNeg = (1 - m.se) / max(m.sp, eps);
+end
+
+function [p, ci] = prop(k, n)
+if n == 0
+    p = NaN;
+    ci = [NaN NaN];
+else
+    p = k / n;
+    ci = netra.eval.wilson(k, n);
+end
 end

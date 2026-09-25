@@ -56,7 +56,7 @@ else
     uptakeR = sum(H(2, :) .* w) / max(sum(H(2, :)), eps);
 end
 K.reachingTreatment = sum(H(3, :)) * uptakeU + sum(H(2, :)) * fr.refInRoutine * uptakeR;
-% annualise when a shorter horizon is simulated (the optimiser uses 26 weeks)
+% annualise when a horizon shorter than a year is simulated
 f = 364 / P.days;
 K.perYear = struct('screened', f * K.screened, 'referableFound', f * K.referableFound, ...
     'missedReferable', f * K.missedReferable, 'reachingTreatment', f * K.reachingTreatment, ...

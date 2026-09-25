@@ -16,3 +16,8 @@ codegen/
 .DS_Store
 Thumbs.db
 *.swp
+# datasets are downloaded by the user (see data/README.md)
+data/*
+!data/README.md
+# Octave writes its workspace here when it is interrupted
+octave-workspace

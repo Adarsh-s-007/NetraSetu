@@ -38,7 +38,8 @@ end
 
 % ---------------------------------------------------------- optimise
 tic;
-R = netra.sim.optimize(P, 'Method', 'auto', 'Evaluations', 42, 'Days', 182);
+% the whole year: a half-year sample would miss the monsoon dip in demand
+R = netra.sim.optimize(P, 'Method', 'auto', 'Evaluations', 42, 'Days', P.days);
 fprintf('Optimisation (%s, %d plans) took %.0f s\n', R.method, numel(R.evaluations), toc);
 b = R.best;
 D = b.decision;

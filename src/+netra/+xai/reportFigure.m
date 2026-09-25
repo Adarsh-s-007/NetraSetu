@@ -130,6 +130,9 @@ gradeBars(base, R, 0.755, 0.56, 0.225, 0.25, P, fontUI);
 txt(base, 0.515, 0.452, 'ICDR criteria (single-field adaptation)', 13, P.ink, 'bold', fontUI);
 C = R.rules.criteria;
 y = 0.42;
+% rows share the space down to the quality block (the DME line is one more)
+nRows = numel(C) + double(R.rules.dme > 0);
+dy = min(0.029, (0.42 - 0.19) / max(nRows - 1, 1));
 for k = 1:numel(C)
     if C(k).met
         dot = P.(ifelse(C(k).level >= 3, 'URGENT', ifelse(C(k).level == 2, 'REFER', 'ROUTINE')));
@@ -144,7 +147,7 @@ for k = 1:numel(C)
     txt(base, 0.533, y, t, 10.5, ifelse(C(k).met, P.ink, P.inkSoft), ...
         ifelse(C(k).met, 'bold', 'normal'), fontUI);
     txt(base, 0.975, y, sprintf('level %d', C(k).level), 9.5, P.inkSoft, 'normal', fontUI, 'right');
-    y = y - 0.029;
+    y = y - dy;
 end
 if R.rules.dme > 0
     txt(base, 0.533, y, sprintf('Macular oedema risk %d (nearest exudate %.2f DD from the fovea)', ...

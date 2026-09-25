@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 850" width="1440" height="850"
+ font-family="Noto Sans, Segoe UI, Helvetica, Arial, sans-serif">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M0 0 L10 5 L0 10 z" fill="#4A5070"/></marker></defs>
+<style>
+.card{fill:#fff;stroke:#E4DED3;stroke-width:1.2}
+.h{font-size:16px;font-weight:700;fill:#14182E}
+.b{font-size:13px;fill:#4A5070}
+.tag{font-size:12px;font-weight:700;text-anchor:end}
+.a{fill:none;stroke-width:1.6}
+.dash{stroke-dasharray:5 4}
+.lab{font-size:12px;fill:#4A5070}
+.lab.o{fill:#E8930C;font-weight:600}
+.lab.i{fill:#3D4DB7;font-weight:600}
+.title{font-size:30px;font-weight:800;fill:#14182E}
+.sub{font-size:15px;fill:#4A5070}
+.foot{font-size:13px;fill:#4A5070}
+</style>
+<rect width="100%" height="100%" fill="#FBF8F3"/>
+<text x="40" y="52" class="title">NetraSetu</text>
+<text x="40" y="78" class="sub">From a photograph taken at a primary health centre to a decision a grader can confirm in 30 seconds - and a district plan that makes it happen 100,000 times a year.</text>
+<rect x="40" y="110" width="250" height="128" rx="12" class="card"/>
+<rect x="40" y="110" width="6" height="128" rx="3" fill="#E8930C"/>
+<text x="58" y="136" class="h">1  Capture</text>
+<text x="58" y="158" class="b">Portable non-mydriatic camera</text>
+<text x="58" y="175" class="b">at the PHC or a mobile camp</text>
+<text x="58" y="192" class="b">technician, both eyes, 6 min</text>
+<rect x="40" y="262" width="250" height="196" rx="12" class="card"/>
+<rect x="40" y="262" width="6" height="196" rx="3" fill="#E8930C"/>
+<text x="58" y="288" class="h">2  Quality gate</text>
+<text x="276" y="288" class="tag" fill="#E8930C">&lt; 1 s</text>
+<text x="58" y="310" class="b">field of view, focus,</text>
+<text x="58" y="327" class="b">illumination, contrast,</text>
+<text x="58" y="344" class="b">artefacts (lashes, flare, haze)</text>
+<text x="58" y="361" class="b">GRADABLE / ENHANCE / RECAPTURE</text>
+<text x="58" y="378" class="b">feedback in Hindi and English:</text>
+<text x="58" y="395" class="b">“Hold still, refocus, retake”</text>
+<path d="M165 238 L165 258" class="a" stroke="#4A5070" marker-end="url(#ah)"/>
+<path d="M290 430 L310 430 L310 175 L294 175" class="a dash" stroke="#E8930C" marker-end="url(#ah)"/>
+<text x="300" y="254" class="lab o" text-anchor="end">recapture</text>
+<rect x="340" y="110" width="270" height="150" rx="12" class="card"/>
+<rect x="340" y="110" width="6" height="150" rx="3" fill="#0F8A7E"/>
+<text x="358" y="136" class="h">3  Standardise</text>
+<text x="358" y="158" class="b">aperture circle fitted (clipped too)</text>
+<text x="358" y="175" class="b">1024-px canvas, 1 DD = 1500 um</text>
+<text x="358" y="192" class="b">illumination + colour normalised</text>
+<text x="358" y="209" class="b">adaptive CLAHE, NL-means denoise</text>
+<rect x="340" y="284" width="270" height="174" rx="12" class="card"/>
+<rect x="340" y="284" width="6" height="174" rx="3" fill="#0F8A7E"/>
+<text x="358" y="310" class="h">4  Anatomy</text>
+<text x="358" y="332" class="b">vessels: Frangi + line detector</text>
+<text x="358" y="349" class="b">  + top-hat, fusion learned on DRIVE</text>
+<text x="358" y="366" class="b">optic disc: 4 independent cues</text>
+<text x="358" y="383" class="b">fovea: darkness + avascular zone</text>
+<text x="358" y="400" class="b">ETDRS grid, quadrants, zones</text>
+<path d="M290 330 L336 330" class="a" stroke="#4A5070" marker-end="url(#ah)"/>
+<path d="M475 260 L475 280" class="a" stroke="#4A5070" marker-end="url(#ah)"/>
+<rect x="660" y="110" width="300" height="348" rx="12" class="card"/>
+<rect x="660" y="110" width="6" height="348" rx="3" fill="#C4441C"/>
+<text x="678" y="136" class="h">5  Lesions, measured</text>
+<text x="678" y="158" class="b">microaneurysms: sub-pixel Gaussian</text>
+<text x="678" y="175" class="b">  fit, error near the Cramer-Rao bound</text>
+<text x="678" y="192" class="b">haemorrhages: dot / blot / flame /</text>
+<text x="678" y="209" class="b">  pre-retinal, counted per quadrant</text>
+<text x="678" y="226" class="b">hard exudates vs cotton-wool spots</text>
+<text x="678" y="243" class="b">  (edge sharpness, Lab yellowness)</text>
+<text x="678" y="260" class="b">macular-oedema zones (1 DD, 500 um)</text>
+<text x="678" y="277" class="b">neovascularisation (disc / elsewhere)</text>
+<text x="678" y="294" class="b">venous beading (calibre + periodicity)</text>
+<text x="678" y="311" class="b">IRMA-like anomalies</text>
+<text x="678" y="328" class="b"></text>
+<text x="678" y="345" class="b">every finding: position, size, probability</text>
+<path d="M610 370 L656 370" class="a" stroke="#4A5070" marker-end="url(#ah)"/>
+<rect x="1010" y="110" width="390" height="104" rx="12" class="card"/>
+<rect x="1010" y="110" width="6" height="104" rx="3" fill="#2a78d6"/>
+<text x="1028" y="136" class="h">ICDR rule engine</text>
+<text x="1386" y="136" class="tag" fill="#2a78d6">transparent</text>
+<text x="1028" y="158" class="b">the 4-2-1 rule, adapted to one 45° field</text>
+<text x="1028" y="175" class="b">Monte Carlo over uncertain lesions</text>
+<rect x="1010" y="226" width="390" height="104" rx="12" class="card"/>
+<rect x="1010" y="226" width="6" height="104" rx="3" fill="#2a78d6"/>
+<text x="1028" y="252" class="h">Lesion ensemble</text>
+<text x="1386" y="252" class="tag" fill="#2a78d6">interpretable</text>
+<text x="1028" y="274" class="b">bagged trees on 32 clinically named features</text>
+<text x="1028" y="291" class="b">Shapley values: which findings pushed the grade</text>
+<rect x="1010" y="342" width="390" height="116" rx="12" class="card"/>
+<rect x="1010" y="342" width="6" height="116" rx="3" fill="#2a78d6"/>
+<text x="1028" y="368" class="h">CNN</text>
+<text x="1386" y="368" class="tag" fill="#2a78d6">accurate</text>
+<text x="1028" y="390" class="b">ResNet-50, 448 px, ordinal-cost loss, TTA</text>
+<text x="1028" y="407" class="b">Grad-CAM++ on the referable log-odds, checked</text>
+<text x="1028" y="424" class="b">against the lesions it should be looking at</text>
+<path d="M960 162 L1006 162" class="a" stroke="#4A5070" marker-end="url(#ah)"/>
+<path d="M960 278 L1006 278" class="a" stroke="#4A5070" marker-end="url(#ah)"/>
+<path d="M960 400 L1006 400" class="a" stroke="#4A5070" marker-end="url(#ah)"/>
+<path d="M1010 440 L964 440" class="a dash" stroke="#3D4DB7" marker-end="url(#ah)"/>
+<text x="985" y="480" class="lab i" text-anchor="middle">attention-evidence concordance</text>
+<rect x="1010" y="500" width="390" height="120" rx="12" class="card"/>
+<rect x="1010" y="500" width="6" height="120" rx="3" fill="#3D4DB7"/>
+<text x="1028" y="526" class="h">6  Ordinal fusion and calibration</text>
+<text x="1028" y="548" class="b">proportional-odds stacking of the three branches</text>
+<text x="1028" y="565" class="b">split-conformal grade set (90 % coverage)</text>
+<text x="1028" y="582" class="b">referral threshold with a guaranteed sensitivity</text>
+<path d="M1205 458 L1205 496" class="a" stroke="#4A5070" marker-end="url(#ah)"/>
+<rect x="560" y="500" width="400" height="120" rx="12" class="card"/>
+<rect x="560" y="500" width="6" height="120" rx="3" fill="#3D4DB7"/>
+<text x="578" y="526" class="h">7  Triage</text>
+<text x="578" y="548" class="b">RECAPTURE &gt; URGENT &gt; REFER &gt; HUMAN REVIEW &gt; ROUTINE</text>
+<text x="578" y="565" class="b">uncertain sets, disagreeing branches, borderline</text>
+<text x="578" y="582" class="b">quality or a CNN looking elsewhere go to a person</text>
+<path d="M1010 560 L964 560" class="a" stroke="#4A5070" marker-end="url(#ah)"/>
+<rect x="40" y="500" width="470" height="120" rx="12" class="card"/>
+<rect x="40" y="500" width="6" height="120" rx="3" fill="#1baf7a"/>
+<text x="58" y="526" class="h">8  Explained result</text>
+<text x="58" y="548" class="b">annotated fundus + ETDRS grid, criteria with values,</text>
+<text x="58" y="565" class="b">grade probabilities, provenance; A4 report and a</text>
+<text x="58" y="582" class="b">bilingual HTML page that travels over 2G</text>
+<path d="M560 560 L514 560" class="a" stroke="#4A5070" marker-end="url(#ah)"/>
+<rect x="40" y="648" width="470" height="104" rx="12" class="card"/>
+<rect x="40" y="648" width="6" height="104" rx="3" fill="#1baf7a"/>
+<text x="58" y="674" class="h">Reader console</text>
+<text x="496" y="674" class="tag" fill="#1baf7a">&lt; 30 s</text>
+<text x="58" y="696" class="b">Enter agrees, 0-4 overrides, R/E/L/A switch views;</text>
+<text x="58" y="713" class="b">a stopwatch and an audit log for every decision</text>
+<rect x="560" y="648" width="840" height="104" rx="12" class="card"/>
+<rect x="560" y="648" width="6" height="104" rx="3" fill="#E8930C"/>
+<text x="578" y="674" class="h">District programme model (Simulink)</text>
+<text x="1386" y="674" class="tag" fill="#E8930C">100,000+ / year</text>
+<text x="578" y="696" class="b">capture -&gt; store-and-forward uplink with outages -&gt; central or edge AI -&gt; grader -&gt; ophthalmologist</text>
+<text x="578" y="713" class="b">age-structured queues give exact turnaround; an optimiser finds the cheapest plan that meets every target</text>
+<path d="M275 620 L275 644" class="a" stroke="#4A5070" marker-end="url(#ah)"/>
+<path d="M510 700 L556 700" class="a dash" stroke="#4A5070" marker-end="url(#ah)"/>
+<text x="40" y="800" class="foot" text-anchor="start">Every stage is testable on synthetic eyes with exact ground truth, and validated on APTOS 2019, IDRiD, DRIVE and Messidor-2 by the experiments in experiments/.</text>
+<text x="40" y="822" class="foot" text-anchor="start">Runs in MATLAB (full pipeline incl. CNN, lesion ensemble, Simulink) and GNU Octave (everything else).</text>
+</svg>

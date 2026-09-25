@@ -20,6 +20,12 @@ r.thresholds = [Inf; s(last)];
 r.auc = trapz(r.fpr, r.tpr);
 r.nPos = P;
 r.nNeg = N;
+if P == 0 || N == 0                        % one class missing: no ROC curve exists
+    r.auc = NaN;
+    r.aucCI = [NaN NaN];
+    r.aucSE = NaN;
+    return
+end
 d = netra.eval.delong(label, score);
 r.aucCI = d.ci(1, :);
 r.aucSE = d.se(1);

@@ -39,7 +39,8 @@ if any(Ld(:))
     n = max(lab(:));
     hit = 0;
     for k = 1:n
-        hit = hit + (max(e(lab == k)) >= t);
+        m = max(e(lab == k));
+        hit = hit + (m > 0 && m >= t);        % a sparse map has t = 0: zero is no attention
     end
     C.lesionRecall = hit / max(n, 1);
     C.score = 2 * C.energyInLesions * C.lesionRecall / max(C.energyInLesions + C.lesionRecall, eps);

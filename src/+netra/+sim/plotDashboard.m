@@ -71,7 +71,10 @@ xlabel(ax, 'Annual cost (Rs crore)');
 ylabel(ax, 'Referable patients reaching treatment / year');
 title(ax, 'A   Every plan tried by the optimiser', 'FontSize', 12, 'Color', C.ink, 'FontName', font, ...
     'HorizontalAlignment', 'left', 'Units', 'normalized', 'Position', [0 1.06 0]);
-legendText(ax, {C.s1, 'edge grading (filled = meets every target)'; C.s2, 'cloud grading (ring = misses a target)'}, C, font);
+% headroom above the plans keeps the legend clear of the data
+yl = ylim(ax);
+ylim(ax, [yl(1), yl(2) + 0.42 * diff(yl)]);
+legendText(ax, {C.s1, 'edge grading'; C.s2, 'cloud grading'; [], 'filled = meets every target, ring = misses one'}, C, font);
 
 % ---------------------------------------------------------- B: turnaround
 ax = panel(fig, [0.55 0.44 0.40 0.30], C, font);
@@ -87,15 +90,22 @@ for k = 1:3
     plot(ax, [0 ages], [0 y], '-', 'Color', lines{k, 2}, 'LineWidth', 2);
 end
 line(ax, P.target.routineP95Hours * [1 1], [0 100], 'Color', C.muted, 'LineWidth', 1);
-text(ax, P.target.routineP95Hours, 6, sprintf(' %d h routine target', P.target.routineP95Hours), ...
-    'FontSize', 9.5, 'Color', C.soft, 'FontName', font);
+tt = text(ax, P.target.routineP95Hours, 50, sprintf(' %d h routine target', P.target.routineP95Hours), ...
+    'FontSize', 9.5, 'Color', C.soft, 'FontName', font, 'VerticalAlignment', 'middle');
 xlim(ax, [0 xmax]);
-ylim(ax, [0 104]);
+ylim(ax, [0 113]);                            % room to label the 100 % plateau
+set(ax, 'YTick', 0:20:100);
 xlabel(ax, 'Hours from photograph');
 ylabel(ax, 'Share of eyes with a result (%)');
 title(ax, 'B   Turnaround of the chosen plan', 'FontSize', 12, 'Color', C.ink, 'FontName', font, ...
     'HorizontalAlignment', 'left', 'Units', 'normalized', 'Position', [0 1.06 0]);
-labelLines(ax, lines, ages, cdf, xmax, C, font);
+lg = legendText(ax, lines(:, [2 3]), C, font, 'bottom-right');
+curvesB = cell(1, size(lines, 1));
+for k = 1:size(lines, 1)
+    curvesB{k} = [[0 ages(:)']; [0 100 * cdf(lines{k, 1}(:)')]];
+end
+netra.util.directLabels(ax, curvesB, lines(:, 3)', 'FontName', font, 'Color', C.ink, ...
+    'Obstacles', {[P.target.routineP95Hours * [1 1]; 0 100]}, 'Taken', [boxOf(tt); lg]);
 
 % ------------------------------------------------------ C: explainability
 ax = panel(fig, [0.05 0.07 0.40 0.27], C, font);
@@ -112,8 +122,9 @@ for k = 1:2
         'FontSize', 10, 'Color', C.ink, 'FontName', font);
 end
 line(ax, [0.4 2.6], 100 * P.target.maxUtilisation * [1 1], 'Color', C.muted, 'LineWidth', 1);
-text(ax, 2.6, 100 * P.target.maxUtilisation + 5, 'capacity target', 'HorizontalAlignment', 'right', ...
-    'FontSize', 9.5, 'Color', C.soft, 'FontName', font);
+text(ax, 1.5, 100 * P.target.maxUtilisation + 1.5, sprintf('%.0f%% target', 100 * P.target.maxUtilisation), ...
+    'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom', 'FontSize', 9.5, ...
+    'Color', C.soft, 'FontName', font);
 set(ax, 'XTick', 1:2, 'XTickLabel', cats, 'XLim', [0.4 2.6], 'YLim', [0 125]);
 ylabel(ax, 'Time in use (%)');
 title(ax, sprintf('C   Reviewer load: explainable console (%d s) vs plain review (%d s)', ...
@@ -162,35 +173,36 @@ function barRect(ax, x, w, h, col, C)
 patch(ax, x + [-w w w -w] / 2, [0 0 h h], col, 'EdgeColor', C.surface, 'LineWidth', 2);
 end
 
-function legendText(ax, items, C, font)
-for k = 1:size(items, 1)
-    y = 1 - 0.09 * (k - 1) - 0.05;
-    text(ax, 0.02, y, '  ', 'Units', 'normalized', 'BackgroundColor', items{k, 1}, 'FontSize', 6, ...
-        'FontName', font, 'VerticalAlignment', 'middle', 'Margin', 1);
-    text(ax, 0.05, y, items{k, 2}, 'Units', 'normalized', 'Color', C.soft, 'FontSize', 9.5, ...
+function boxes = legendText(ax, items, C, font, corner)
+% colour swatch + label per row; an empty colour gives a note line.
+% Returns the rows' boxes in data units ([x0 y0 x1 y1]) for label placement.
+if nargin < 5
+    corner = 'top-left';
+end
+n = size(items, 1);
+boxes = zeros(0, 4);
+for k = 1:n
+    if strcmp(corner, 'bottom-right')
+        x = 0.64;
+        y = 0.07 + 0.09 * (n - k);
+    else
+        x = 0.02;
+        y = 1 - 0.09 * (k - 1) - 0.05;
+    end
+    if ~isempty(items{k, 1})
+        text(ax, x, y, '  ', 'Units', 'normalized', 'BackgroundColor', items{k, 1}, 'FontSize', 6, ...
+            'FontName', font, 'VerticalAlignment', 'middle', 'Margin', 1);
+    end
+    h = text(ax, x + 0.03, y, items{k, 2}, 'Units', 'normalized', 'Color', C.soft, 'FontSize', 9.5, ...
         'FontName', font, 'VerticalAlignment', 'middle');
+    set(h, 'Units', 'data');
+    b = boxOf(h);
+    boxes(end + 1, :) = [b(1) - 0.035 * diff(xlim(ax)), b(2), b(3), b(4)]; %#ok<AGROW>
 end
 end
 
-function labelLines(ax, lines, ages, cdf, xmax, C, font)
-% label each curve where the curves are most separated (early plateau),
-% keeping labels at least 7 percentage points apart
-x0 = 0.07 * xmax;
-ys = zeros(1, size(lines, 1));
-for k = 1:size(lines, 1)
-    y = 100 * cdf(lines{k, 1});
-    i = find(ages <= x0, 1, 'last');
-    ys(k) = y(i);
-end
-[~, order] = sort(ys, 'descend');
-place = ys;
-for j = 2:numel(order)
-    place(order(j)) = min(place(order(j)), place(order(j - 1)) - 7);
-end
-for k = 1:size(lines, 1)
-    text(ax, x0 + 0.01 * xmax, place(k) - 1.5, lines{k, 3}, 'Color', C.ink, 'FontSize', 9.5, ...
-        'FontName', font, 'HorizontalAlignment', 'left', 'VerticalAlignment', 'top');
-end
+function b = boxOf(h)
+b = netra.util.textBox(h);                    % [x0 y0 x1 y1], data units, as drawn
 end
 
 function c = hex(h)
