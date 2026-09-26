@@ -11,6 +11,10 @@ function B = benchmarks(varargin)
 %              'dr-grading'    five-level ICDR agreement
 %              'vessels'       DRIVE test set, pixels inside the FOV
 %              'lesion-seg'    IDRiD sub-challenge 1, area under PR curve
+%                              (one entry per lesion: MA, HE, EX, SE)
+%              'landmarks'     IDRiD sub-challenge 3, mean Euclidean
+%                              distance in pixels at 4288 x 2848
+%              'od-seg'        IDRiD sub-challenge 3, optic disc Jaccard
 %              'standard'      screening accuracy standards and targets
 %   Values are transcribed from the cited papers (abstracts or results
 %   tables). Entries with verify = true were transcribed with less
@@ -36,6 +40,7 @@ N19 = 'Natarajan S et al. JAMA Ophthalmol 2019;137(10):1182-8';
 F12 = 'Fraz MM et al. IEEE Trans Biomed Eng 2012;59(9):2538-48';
 N04 = 'Niemeijer M et al. Proc SPIE Medical Imaging 2004;5370:648-56';
 P20 = 'Porwal P et al. Med Image Anal 2020;59:101561';
+SA20 = 'Guo C et al. SA-UNet, ICPR 2020 (arXiv:2004.03696), Table V';
 
 B = [ ...
  e('referable-dr', 'Messidor-2', 'Deep learning (Google), high-sensitivity point', 'se', 0.961, [], 1748, G16, false, 'rDR = moderate NPDR+ or referable DME')
@@ -61,9 +66,10 @@ B = [ ...
  e('referable-dr', 'US primary care (pivotal trial)', 'IDx-DR (autonomous)', 'sp', 0.907, [0.883 0.927], 819, A18, false, '')
  e('referable-dr', 'Chennai, India (smartphone camera)', 'EyeArt on Remidio Fundus-on-Phone', 'se', 0.991, [], 296, R18, true, 'sight-threatening DR')
  e('referable-dr', 'Chennai, India (smartphone camera)', 'EyeArt on Remidio Fundus-on-Phone', 'sp', 0.804, [], 296, R18, true, 'sight-threatening DR')
- e('referable-dr', 'Mumbai, India (smartphone camera)', 'Medios offline AI', 'se', 1.000, [0.782 1.000], 213, N19, true, 'on-device, no internet')
- e('referable-dr', 'Mumbai, India (smartphone camera)', 'Medios offline AI', 'sp', 0.884, [0.832 0.925], 213, N19, true, '')
+ e('referable-dr', 'Mumbai, India (smartphone camera)', 'Medios offline AI', 'se', 1.000, [0.782 1.000], 213, N19, false, 'on-device, no internet')
+ e('referable-dr', 'Mumbai, India (smartphone camera)', 'Medios offline AI', 'sp', 0.884, [0.832 0.925], 213, N19, false, '')
  e('dr-grading', 'APTOS 2019 (private test)', 'Competition winner (ensemble of CNNs)', 'qwk', 0.936, [], [], 'Kaggle APTOS 2019 Blindness Detection, private leaderboard', false, 'hidden labels: an internal hold-out QWK is not directly comparable')
+ e('dr-grading', 'IDRiD (test)', 'Best challenge entry (LzyUNCC), joint DR + DME', 'acc', 0.6311, [], 103, P20, false, 'both grades correct on the same image')
  e('vessels', 'DRIVE', 'Second human observer', 'se', 0.776, [], 20, F12, false, 'values differ slightly between tabulations')
  e('vessels', 'DRIVE', 'Second human observer', 'sp', 0.972, [], 20, F12, false, '')
  e('vessels', 'DRIVE', 'Second human observer', 'acc', 0.947, [], 20, F12, false, '')
@@ -86,12 +92,21 @@ B = [ ...
  e('vessels', 'DRIVE', 'B-COSFIRE (Azzopardi 2015)', 'sp', 0.9704, [], 20, 'Azzopardi G et al. Med Image Anal 2015;19(1):46-57', false, '')
  e('vessels', 'DRIVE', 'B-COSFIRE (Azzopardi 2015)', 'acc', 0.9442, [], 20, 'Azzopardi G et al. Med Image Anal 2015;19(1):46-57', false, '')
  e('vessels', 'DRIVE', 'B-COSFIRE (Azzopardi 2015)', 'auc', 0.9614, [], 20, 'Azzopardi G et al. Med Image Anal 2015;19(1):46-57', false, '')
- e('vessels', 'DRIVE', 'Deep CNN (Liskowski & Krawiec 2016)', 'acc', 0.9535, [], 20, 'Liskowski P, Krawiec K. IEEE Trans Med Imaging 2016;35(11):2369-80', true, 'deep learning')
- e('vessels', 'DRIVE', 'Deep CNN (Liskowski & Krawiec 2016)', 'auc', 0.9790, [], 20, 'Liskowski P, Krawiec K. IEEE Trans Med Imaging 2016;35(11):2369-80', true, '')
- e('lesion-seg', 'IDRiD', 'Best challenge entry, microaneurysms', 'aupr', 0.5017, [], 27, P20, true, 'deep segmentation networks')
- e('lesion-seg', 'IDRiD', 'Best challenge entry, haemorrhages', 'aupr', 0.6490, [], 27, P20, true, '')
- e('lesion-seg', 'IDRiD', 'Best challenge entry, hard exudates', 'aupr', 0.8850, [], 27, P20, true, '')
- e('lesion-seg', 'IDRiD', 'Best challenge entry, soft exudates', 'aupr', 0.6977, [], 27, P20, true, '')
+ e('vessels', 'DRIVE', 'Deep CNN (Liskowski & Krawiec 2016)', 'acc', 0.9535, [], 20, 'Liskowski P, Krawiec K. IEEE Trans Med Imaging 2016;35(11):2369-80', false, 'deep learning')
+ e('vessels', 'DRIVE', 'Deep CNN (Liskowski & Krawiec 2016)', 'auc', 0.9790, [], 20, 'Liskowski P, Krawiec K. IEEE Trans Med Imaging 2016;35(11):2369-80', false, '')
+ e('vessels', 'DRIVE', 'SA-UNet (Guo 2020)', 'se', 0.8212, [], 20, SA20, false, 'deep learning; images resized to 592 x 592')
+ e('vessels', 'DRIVE', 'SA-UNet (Guo 2020)', 'sp', 0.9840, [], 20, SA20, false, '')
+ e('vessels', 'DRIVE', 'SA-UNet (Guo 2020)', 'acc', 0.9698, [], 20, SA20, false, '')
+ e('vessels', 'DRIVE', 'SA-UNet (Guo 2020)', 'auc', 0.9864, [], 20, SA20, false, '')
+ e('lesion-seg', 'IDRiD', 'Best challenge entry (iFLYTEK), microaneurysms', 'aupr', 0.5017, [], 27, P20, false, 'deep segmentation networks trained on IDRiD')
+ e('lesion-seg', 'IDRiD', 'Best challenge entry (VRT), haemorrhages', 'aupr', 0.6804, [], 27, P20, false, '')
+ e('lesion-seg', 'IDRiD', 'Best challenge entry (PATech), hard exudates', 'aupr', 0.8850, [], 27, P20, false, '')
+ e('lesion-seg', 'IDRiD', 'Best challenge entry (VRT), soft exudates', 'aupr', 0.6995, [], 27, P20, false, '')
+ e('landmarks', 'IDRiD', 'Best challenge entry (DeepDR), optic disc centre', 'px', 21.072, [], 103, P20, false, 'deep network; lower is better')
+ e('landmarks', 'IDRiD', 'Best challenge entry (DeepDR), fovea centre', 'px', 64.492, [], 103, P20, false, '')
+ e('landmarks', 'IDRiD', 'Hand-crafted features (CBER, unranked), optic disc centre', 'px', 29.183, [], 103, P20, false, 'classical, closest in spirit to NetraSetu')
+ e('landmarks', 'IDRiD', 'Hand-crafted features (CBER, unranked), fovea centre', 'px', 59.751, [], 103, P20, false, '')
+ e('od-seg', 'IDRiD', 'Best challenge entry (ZJU-BII-SGEX), optic disc', 'jaccard', 0.9338, [], 27, P20, false, 'Mask R-CNN')
  e('standard', 'any', 'British Diabetic Association / Exeter standard', 'se', 0.80, [], [], 'British Diabetic Association, 1997', false, 'minimum for sight-threatening DR')
  e('standard', 'any', 'British Diabetic Association / Exeter standard', 'sp', 0.95, [], [], 'British Diabetic Association, 1997', false, '')
  e('standard', 'any', 'FDA pivotal-trial endpoints (IDx-DR)', 'se', 0.85, [], [], A18, false, 'pre-specified superiority endpoint')

@@ -155,10 +155,19 @@ if isempty(S2)
     h{end + 1} = missing('experiments/exp02_lesions_idrid.m');
 else
     B = netra.eval.benchmarks('Task', 'lesion-seg');
+    keyword = struct('MA', 'microaneurysm', 'HE', 'haemorrhage', 'EX', 'hard exudate', ...
+        'SE', 'soft exudate');
     body = {};
     for t = 1:numel(S2.segmentation)
         s = S2.segmentation(t);
-        body(end + 1, :) = {s.type, sprintf('%.3f', s.aupr), sprintf('%.3f', B(t).value)}; %#ok<AGROW>
+        ref = NaN;
+        if isfield(keyword, s.type)
+            j = find(~cellfun(@isempty, strfind(lower({B.method}), keyword.(s.type))), 1);
+            if ~isempty(j)
+                ref = B(j).value;
+            end
+        end
+        body(end + 1, :) = {s.type, sprintf('%.3f', s.aupr), sprintf('%.3f', ref)}; %#ok<AGROW>
     end
     h{end + 1} = sprintf('<p class="note">%d test images at native resolution. Microaneurysm FROC score %.3f. Optic-disc Jaccard %.3f.</p>', ...
         S2.nSegmentation, S2.froc.score, mean(S2.odJaccard(~isnan(S2.odJaccard))));
@@ -171,6 +180,13 @@ else
             sprintf('%.0f%%', 100 * l.within2)}; %#ok<AGROW>
     end
     h{end + 1} = table_({'Landmark', 'Median error', 'within 1/8 DD', 'within 1/4 DD', 'within 1/2 DD'}, body);
+    BL = netra.eval.benchmarks('Task', 'landmarks');
+    if numel(BL) >= 4
+        h{end + 1} = sprintf(['<p class="note">IDRiD challenge, mean error at 4288 x 2848: best entry ' ...
+            '(deep) %.1f px disc, %.1f px fovea; hand-crafted CBER %.1f px disc, %.1f px fovea ' ...
+            '(Porwal et al. 2020). Medians and means are not interchangeable.</p>'], ...
+            BL(1).value, BL(2).value, BL(3).value, BL(4).value);
+    end
     h{end + 1} = figureHTML(fullfile(o.Results, 'exp02', 'example.jpg'), ...
         'Photograph, reference lesions, NetraSetu annotation');
 end

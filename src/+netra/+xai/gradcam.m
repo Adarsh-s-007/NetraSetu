@@ -11,7 +11,10 @@ function [cam, info] = gradcam(model, X, varargin)
 %   confident predictions). The map answers the clinical question "what
 %   made this eye referable?" rather than "what made it grade 3 rather than
 %   every other grade". Gradients are taken with dlfeval/dlgradient at the
-%   layer feeding global average pooling (model.info.featureLayer).
+%   layer feeding global average pooling (model.info.featureLayer), through
+%   predict - inference behaviour, so batch normalisation uses its trained
+%   statistics exactly as when the grade was produced (forward would
+%   normalise this single image by its own statistics).
 %
 %   cam is returned at the network input size in [0, 1]; info has the
 %   target score and the raw low-resolution map.
@@ -40,7 +43,7 @@ info = struct('score', double(gather(s)), 'lowRes', low, 'method', o.Method, ...
 end
 
 function [A, G, s] = camGradients(net, dlX, featureLayer, logitLayer, target)
-[act, z] = forward(net, dlX, 'Outputs', {featureLayer, logitLayer});
+[act, z] = predict(net, dlX, 'Outputs', {featureLayer, logitLayer});
 z = z(:, 1);
 if ischar(target) && strcmpi(target, 'referable')
     s = lse(z(3:5)) - lse(z(1:2));

@@ -5,10 +5,12 @@ function files = cacheDataset(fileList, cfg, cacheDir, varargin)
 %
 %   Standardising a 4288 x 2848 photograph takes far longer than a training
 %   step, so every image is converted once to a cfg.grading.cnnInputSize
-%   PNG in cacheDir (same base name) and training reads the cache. Files
-%   that already exist are skipped, so the step is resumable. Returns the
-%   cached file names in the order of fileList ('' when an image could not
-%   be read or has no detectable field of view).
+%   PNG in cacheDir and training reads the cache. The cached name is the
+%   base name plus a hash of the full path, because datasets reuse names
+%   across folders (IDRiD_001.jpg is both a training and a test image).
+%   Files that already exist are skipped, so the step is resumable. Returns
+%   the cached file names in the order of fileList ('' when an image could
+%   not be read or has no detectable field of view).
 %   Option 'Parallel' (false) uses parfor when the Parallel Computing
 %   Toolbox is available.
 
@@ -36,7 +38,7 @@ end
 
 function out = one(f, cfg, cacheDir, D)
 [~, base] = fileparts(f);
-out = fullfile(cacheDir, [base '.png']);
+out = fullfile(cacheDir, sprintf('%s_%08x.png', base, pathHash(f)));
 if exist(out, 'file')
     return
 end
@@ -53,5 +55,16 @@ try
 catch err
     warning('netra:cache:skip', 'Skipping %s: %s', f, err.message);
     out = '';
+end
+end
+
+function h = pathHash(f)
+% 32-bit FNV-1a of the full path, exact in double arithmetic:
+% h * 16777619 mod 2^32 = ((h mod 256) * 2^24 + 403 h) mod 2^32
+h = 2166136261;
+b = double(char(f));
+for k = 1:numel(b)
+    h = bitxor(h, mod(b(k), 256));
+    h = mod(mod(h, 256) * 16777216 + 403 * h, 4294967296);
 end
 end
